@@ -70,6 +70,7 @@ kill_channel(<<"outbound">>, _, CallId, Node) ->
 -spec is_mobile_device(kzd_freeswitch:data(), atom()) -> authz_reply().
 is_mobile_device(Props, Node) ->
     <<"mobile">> =:=  kzd_freeswitch:authorizing_type(Props)
+        orelse is_emergency_number(Props)
         orelse maybe_authorized_channel(Props, Node).
 
 -spec maybe_authorized_channel(kzd_freeswitch:data(), atom()) -> authz_reply().
@@ -86,7 +87,7 @@ maybe_authorized_channel(Props, Node) ->
                 orelse maybe_channel_recovering(Props, kzd_freeswitch:call_id(Props), Node)
     end.
 
--spec maybe_authorize_conference_number(kzd_freeswitch:data()) -> boolean().
+-spec maybe_authorize_conference_number(kzd_freeswitch:data()) -> authz_reply().
 maybe_authorize_conference_number(Props) ->
     lager:debug("is destination number 'conference': ~s"
                ,[kzd_freeswitch:hunt_destination_number(Props)]
@@ -416,3 +417,8 @@ rating_req(CallId, Props) ->
                            ,{<<"Authorizing-Type">>, kzd_freeswitch:authorizing_type(Props)}
                             | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
                            ]).
+
+-spec is_emergency_number(kzd_freeswitch:data()) -> authz_reply().
+is_emergency_number(Props) ->
+    <<"emergency">> =:= knm_converters:classify(kzd_freeswitch:callee_id_number(Props))
+        andalso <<"outbound">> =:= kzd_freeswitch:call_direction(Props).
