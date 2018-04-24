@@ -645,6 +645,7 @@ amqp_pool_collect(Api, PubFun, Until, Timeout) ->
 %% @doc Extracts the User and Realm from either the Request or To field, configured
 %% in the `system_config' DB. Defaults to Request (To is the other option).
 %% @end
+%% JOHAN!!!!!!!!!!
 %%------------------------------------------------------------------------------
 -spec get_destination(kz_json:object(), kz_term:ne_binary(), kz_term:ne_binary()) ->
                              {kz_term:ne_binary(), kz_term:ne_binary()}.
